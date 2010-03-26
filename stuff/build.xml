@@ -1,0 +1,102 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- WARNING: Eclipse auto-generated file.
+              Any modifications will be overwritten.
+              To include a user specific buildfile here, simply create one in the same
+              directory with the processing instruction <?eclipse.ant.import?>
+              as the first entry and export the buildfile again. -->
+<project basedir="." default="build" name="Damka_Sinit">
+    <property environment="env"/>
+    <property name="JUNIT_HOME" value="../../../../eclipse321/plugins/org.junit_3.8.1"/>
+    <property name="ECLIPSE_HOME" value="../../../../eclipse321"/>
+    <property name="debuglevel" value="source,lines,vars"/>
+    <property name="target" value="1.5"/>
+    <property name="source" value="1.5"/>
+    <path id="Damka_Sinit.classpath">
+        <pathelement location="bin"/>
+        <pathelement location="${JUNIT_HOME}/junit.jar"/>
+        <pathelement location="../../../../Eclipse_projects/simple-xml-1.2/jar/simple-xml-1.2.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/jdom-1.0.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/cglib-nodep-2.1_3.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/commons-lang-2.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/dom4j-1.6.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/jmock-1.0.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/joda-time-1.2.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/junit-3.8.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/oro-2.0.8.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/stax-1.2.0.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/stax-api-1.0.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/xml-writer-0.2.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/xom-1.1.jar"/>
+        <pathelement location="../../My Documents/My Downloads/xstream-distribution-1.2.1-src/xstream-1.2.1/xstream/lib/xpp3_min-1.1.3.4.O.jar"/>
+    </path>
+    <target name="init">
+        <mkdir dir="bin"/>
+        <copy includeemptydirs="false" todir="bin">
+            <fileset dir="src" excludes="**/*.launch, **/*.java"/>
+        </copy>
+    </target>
+    <target name="clean">
+        <delete dir="bin"/>
+    </target>
+    <target depends="clean" name="cleanall"/>
+    <target depends="build-subprojects,build-project" name="build"/>
+    <target name="build-subprojects"/>
+    <target depends="init" name="build-project">
+        <echo message="${ant.project.name}: ${ant.file}"/>
+        <javac debug="true" debuglevel="${debuglevel}" destdir="bin" source="${source}" target="${target}">
+            <src path="src"/>
+            <classpath refid="Damka_Sinit.classpath"/>
+        </javac>
+    </target>
+    <target description="Build all projects which reference this project. Useful to propagate changes." name="build-refprojects"/>
+    <target description="copy Eclipse compiler jars to ant lib directory" name="init-eclipse-compiler">
+        <copy todir="${ant.library.dir}">
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </copy>
+        <unzip dest="${ant.library.dir}">
+            <patternset includes="jdtCompilerAdapter.jar"/>
+            <fileset dir="${ECLIPSE_HOME}/plugins" includes="org.eclipse.jdt.core_*.jar"/>
+        </unzip>
+    </target>
+    <target description="compile project with Eclipse compiler" name="build-eclipse-compiler">
+        <property name="build.compiler" value="org.eclipse.jdt.core.JDTCompilerAdapter"/>
+        <antcall target="build"/>
+    </target>
+    <target name="CheckerDrag">
+        <java classname="sun.applet.AppletViewer" dir="." failonerror="true" fork="yes">
+            <arg line="CheckerDrag.html"/>
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="MainClass2">
+        <java classname="mystuff.checkers.MainClass2" failonerror="true" fork="yes">
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="MainPlainCheckers">
+        <java classname="mystuff.checkers.ui.plaincheckers.MainPlainCheckers" failonerror="true" fork="yes">
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="MainVisualUgolki">
+        <java classname="mystuff.checkers.ui.ugolki.MainVisualUgolki" failonerror="true" fork="yes">
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="MidpointDrawing">
+        <java classname="mystuff.checkers.ui.MidpointDrawing" failonerror="true" fork="yes">
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="VCell">
+        <java classname="mystuff.checkers.ui.VCell" failonerror="true" fork="yes">
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+    <target name="VisualCheckers">
+        <java classname="sun.applet.AppletViewer" dir="." failonerror="true" fork="yes">
+            <arg line="VisualCheckers.html"/>
+            <classpath refid="Damka_Sinit.classpath"/>
+        </java>
+    </target>
+</project>
