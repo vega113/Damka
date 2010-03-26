@@ -233,7 +233,7 @@ public class UgolkiCanvas extends CheckersCanvas {
 			autoPlayer.execute();
 			 TableMove move = autoPlayer.getNextMove();
 			 System.out.println(autoPlayer.getSide().getPlayerSymbol() + " click (from) on " + move.getFrom().toString());
-			 doClickSquare( move.getFrom().getXCoord(),move.getFrom().getYCoord());
+			 doClickSquare( move.getFrom().getXCoord(),move.getFrom().getYCoord()); //change
 			 paint(getGraphics());
 			 try {
 				Thread.sleep(autoSleepTime);
