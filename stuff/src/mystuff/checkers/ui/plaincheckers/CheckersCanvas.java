@@ -109,10 +109,10 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	//     yet selected, then selectedRow is -1.
 	CheckersMove[] legalMoves;  // An array containing the legal moves for the
 	//   current player.
-	private MainPlainCheckers mainPlainCheckers;
+	protected MainPlainCheckers mainPlainCheckers;
 	public MouseEvent evt;
 	
-	protected CanvasThread playThread;
+	protected CanvasThread playThread = null;;
 
 	public CheckersCanvas() {
 		// Constructor.  Create the buttons and lable.  Listen for mouse
@@ -183,13 +183,13 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 		// Respond to user's click on one of the two buttons.
 		Object src = evt.getSource();
 		if (src == newGameButton)
-			doNewGame();
+			doNewGame(true);
 		else if (src == resignButton)
 			doResign();
 	}
 
 
-	public boolean doNewGame() {
+	public boolean doNewGame(boolean isTransmit) {
 		//let's check if we have 2 computers
 		print("in checkers canvas: doNewGame");
 		if (gameInProgress == true) {
@@ -207,7 +207,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 		}
 		// Begin a new game.
 		
-		if(mainPlainCheckers != null){
+		if(mainPlainCheckers != null && isTransmit){
 			mainPlainCheckers.transmitClickNewGame();
 			mainPlainCheckers.mylog("new game!");
 		}
@@ -223,7 +223,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 		paint(getGraphics());
 		playThread = initCanvasThread();
 		playThread.start();
-		System.out.println("playThread: started");
+		mainPlainCheckers.mylog("playThread: started");
 		return gameInProgress;
 	}
 
@@ -245,23 +245,31 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			strMsg= new String[2];
 			strMsg[0] = getRedPLayerName() + " resigns.";
 			strMsg[1] =  getBlackPLayerName() + " wins.";
-			gameOver(strMsg,CheckersData.BLACK);
+			gameOver(strMsg,CheckersData.BLACK,true);
 		}
 		else{
 			strMsg= new String[2];
 			strMsg[0] = getBlackPLayerName() + " resigns.";
 			strMsg[1] =  getRedPLayerName() + " wins.";
-			gameOver(strMsg,CheckersData.RED);
+			gameOver(strMsg,CheckersData.RED,true);
 		}
 	}
 
 	public void stopThreads(){
 		try{
 			playThread.stop();
-		}catch(Exception e){}
+		}catch(Exception e){
+			mainPlainCheckers.mylog(e.getMessage());
+		}
 	}
 	
-	void gameOver(String[] str, int side) {
+	/**
+	 * 
+	 * @param str
+	 * @param side
+	 * @param isGameOverByResign
+	 */
+	void gameOver(String[] str, int side, boolean isGameOverByResign) {
 		gameInProgress = false;
 		// The game ends.  The parameter, str, is displayed as a message
 		// to the user.  The states of the buttons are adjusted so playes
@@ -283,17 +291,30 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			setAutoRed(true);
 			setOwnerBlack(true);
 			setOwnerRed(true);
-			if(side == CheckersData.RED){
-				mainPlainCheckers.transmitGameOver(redPlayerWaveId,blackPlayerWaveId);
-				System.out.println("transmitGameOver: red");
+			if (!isGameOverByResign) {
+				if (side == CheckersData.RED) {
+					mainPlainCheckers.transmitGameOver(redPlayerWaveId,
+							blackPlayerWaveId);
+					mainPlainCheckers.mylog("transmitGameOver: red");
+				} else {
+					mainPlainCheckers.transmitGameOver(blackPlayerWaveId,
+							redPlayerWaveId);
+					mainPlainCheckers.mylog("transmitGameOver: black");
+				}
 			}else{
-				mainPlainCheckers.transmitGameOver(blackPlayerWaveId,redPlayerWaveId);
-				System.out.println("transmitGameOver: black");
+				if(mainPlainCheckers.ownerId.equals(blackPlayerWaveId)){
+					mainPlainCheckers.transmitGameOver(blackPlayerWaveId,
+							redPlayerWaveId);
+					mainPlainCheckers.mylog("transmitGameOver: black");
+				}else{
+					mainPlainCheckers.transmitGameOver(redPlayerWaveId,blackPlayerWaveId);
+					mainPlainCheckers.mylog("transmitGameOver: red");
+				}
 			}
 		}
 		try{
 			playThread.stop();
-			System.out.println("play thread stopped");
+			mainPlainCheckers.mylog("play thread stopped");
 		}catch(Exception e){}
 		
 		
@@ -332,6 +353,13 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 					message.setText(getRedPLayerName() + ":  Make your move.");
 				else
 					message.setText(getBlackPLayerName() + ":  Make your move.");
+				
+				if (mainPlainCheckers != null  && isTransmitClick) {
+					mainPlainCheckers.transmitClick(row, col);
+				}else{
+					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
+				}
+				mainPlainCheckers.mylog("exiting doClickSquare (select square): " + row + "," + col);
 				return false;
 			}
 
@@ -340,11 +368,6 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 
 		if (selectedRow < 0) {
 			message.setText("Click the piece you want to move.");
-			if (mainPlainCheckers != null) {
-				mainPlainCheckers.transmitClick(row, col);
-			}else{
-				mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
-			}
 			return false;
 		}
 
@@ -357,10 +380,12 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 				doMakeMove(legalMoves[i]);
 //				if (mainPlainCheckers != null && toPlayerSideId(getCurrentPlayer()).equals(clickerId)) {
 				mainPlainCheckers.mylog("curentPlayerSide: " + toPlayerSideId(getCurrentPlayer()) + ", clickerId: " + clickerId);
-				if (mainPlainCheckers != null ) {
+				if (mainPlainCheckers != null  && isTransmitClick) {
 					mainPlainCheckers.transmitClick(row, col);
+				}else{
+					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
 				}
-				mainPlainCheckers.mylog("entering doClickSquare: " + legalMoves[i].toString());
+				mainPlainCheckers.mylog("exiting doClickSquare (move): " + legalMoves[i].toString());
 				return true;
 			}
 
@@ -409,11 +434,12 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	 * 
 	 */
 	protected void switchNextPlayer(int currentPlayer) {
+		mainPlainCheckers.mylog("Entering switchNextPlayer: " + toPlayerSideId(currentPlayer));
 		if (getCurrentPlayer() == CheckersData.BLACK) {
 			
 			setCurrentPlayer(CheckersData.RED);// go on to the next player
 			if (isWinConditionForSideReached(CheckersData.RED))
-				gameOver(msgRedWins(),CheckersData.RED);
+				gameOver(msgRedWins(),CheckersData.RED,false);
 			
 			else if (legalMoves[0].isJump())
 				message.setText(getRedPLayerName() + ":  Make your move.  You must jump.");
@@ -426,7 +452,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			setCurrentPlayer(CheckersData.BLACK);// go on to the next player
 			
 			if (isWinConditionForSideReached(CheckersData.BLACK))
-				gameOver(msgBlackWins(),CheckersData.BLACK);
+				gameOver(msgBlackWins(),CheckersData.BLACK,false);
 			
 			else if (legalMoves[0].isJump())
 				message.setText(getBlackPLayerName() + ":  Make your move.  You must jump.");
@@ -436,6 +462,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			
 		}
 		setLegalMoves(getBoard().getLegalMoves(getCurrentPlayer()));
+		mainPlainCheckers.mylog("Exiting switchNextPlayer");
 		
 	}
 
@@ -661,11 +688,11 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	protected String redPlayerWaveId = initRedId;
 	protected String blackPlayerWaveId = initBlackId;
 	private String clickerId = "";
+	protected boolean isTransmitClick;
 	
 	public void mousePressed(MouseEvent evt) {
-		System.out.println("mousePressed: " + evt.toString());
-		this.evt = evt;
 		pos = getSquareByCoord(evt.getX(), evt.getY());
+		mainPlainCheckers.mylog(" entering mousePressed: " + pos[0] + "," + pos[1]);
 		evt.consume();
 		clickerId = mainPlainCheckers.ownerId;
 		mousePressedInternal(pos,true);
@@ -682,11 +709,12 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 //			}
 //
 //		}
-
+		mainPlainCheckers.mylog(" exiting mousePressed: ");
 	}
 	
-	public void mousePressedInternal(int[] posIn, boolean b) {
-		mainPlainCheckers.mylog("entering mousePressedInternal: ");
+	public void mousePressedInternal(int[] posIn, boolean isTransmitClick) {
+		this.isTransmitClick = isTransmitClick;
+		mainPlainCheckers.mylog("entering mousePressedInternal, isTransmit:  " + isTransmitClick);
 		pos = posIn;
 		// Respond to a user click on the board.  If no game is
 		// in progress, show an error message.  Otherwise, find
@@ -702,11 +730,11 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 				try{
 					playThread.resume();
 				}catch(Exception e){
-					System.out.println(e.getMessage());
+					mainPlainCheckers.mylog(e.getMessage());
 					try{
 						playThread.start();
 					}catch(Exception e1){
-						System.out.println(e1.getMessage());
+						mainPlainCheckers.mylog(e1.getMessage());
 					}
 				}
 				
@@ -714,12 +742,12 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			try{
 				playThread.resume();
 			}catch(Exception e){
-				System.out.println(e.getMessage());
+				mainPlainCheckers.mylog(e.getMessage());
 			}
 			
 		}
 		mainPlainCheckers.mylog("exiting mousePressedInternal: ");
-//		System.out.println("playThread.isAlive: " + playThread.isAlive());
+//		mainPlainCheckers.mylog("playThread.isAlive: " + playThread.isAlive());
 	}
 
 
@@ -929,10 +957,15 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	protected void initAutomatePlayers() {
 	}
 	
+	protected Thread createPlayerThread(){
+		return new CanvasThread();
+	}
+	
 	public class CanvasThread extends Thread {
 		public void run() {
 	    	 mainPlainCheckers.mylog("entering " + this.getClass().getName() + "");
 	    	while(gameInProgress){
+	    		paint(getGraphics());
 	    		mainPlainCheckers.mylog("player thread in while : looping");
 	    		boolean isOwnerClick = false;
 	    		if(getCurrentPlayer() == CheckersData.RED && (isOwnerRed || clickerId.equals(redPlayerWaveId))){
@@ -962,12 +995,10 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
  	 				if(pos != null && isOwnerClick){    		  
  	 					if(doClickSquare(pos[0],pos[1])){
  	 						paint(getGraphics());
-//	 	 						repaint();
  	 						switchNextPlayer(getCurrentPlayer());
- 	 					}else{
  	 						paint(getGraphics());
-//	 	 						repaint();
  	 					}
+ 	 					paint(getGraphics());
  	 					pos = null;
  	 					continue;
  	 				}else{
@@ -1007,6 +1038,13 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
  		}
 		return null;
 	}
+	 
+	 public int id2CurrentPlayer(String id){
+		 if(id.equals(redPlayerWaveId))
+			 return CheckersData.RED;
+		 else
+			 return CheckersData.BLACK;
+	 }
 
 
 	protected String[] msgRedWins(){
@@ -1046,7 +1084,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 		if(mainPlainCheckers != null){
 			mainPlainCheckers.mylog(str);
 		}else
-			System.out.println(str);
+			mainPlainCheckers.mylog(str);
 	}
 
 

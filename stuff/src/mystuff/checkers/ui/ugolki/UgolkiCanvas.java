@@ -26,6 +26,7 @@ import mystuff.checkers.table.TableState;
 import mystuff.checkers.ui.plaincheckers.CheckersCanvas;
 import mystuff.checkers.ui.plaincheckers.CheckersData;
 import mystuff.checkers.ui.plaincheckers.CheckersMove;
+import mystuff.checkers.ui.plaincheckers.MainPlainCheckers;
 import mystuff.checkers.ui.plaincheckers.CheckersCanvas.CanvasThread;
 
 /**
@@ -130,7 +131,7 @@ public class UgolkiCanvas extends CheckersCanvas {
 		return result;
 	}
 	public boolean doNewGame() {
-		boolean isSuperNewGame = super.doNewGame();
+		boolean isSuperNewGame = super.doNewGame(true);
 		return isSuperNewGame;
 	}
 	
@@ -164,7 +165,7 @@ public class UgolkiCanvas extends CheckersCanvas {
 
 	 @Override
 		public void repaint() {
-			System.out.println("repaint");
+			mainPlainCheckers.mylog("repaint");
 			Graphics g;
 			Thread.currentThread().setPriority(Thread.MAX_PRIORITY);
 		    g=getGraphics();
@@ -182,7 +183,7 @@ public class UgolkiCanvas extends CheckersCanvas {
 	@Override
 	public void paint(Graphics g) {
 		super.paint(g);
-//		System.out.println("IN ugolki paint");
+//		mainPlainCheckers.mylog("IN ugolki paint");
 		if (m_lastMoveCol >= 0) {
 			
 //			if (m_lastMoveCol >= 0) {
@@ -216,8 +217,6 @@ public class UgolkiCanvas extends CheckersCanvas {
 		super.switchNextPlayer(currentPlayer);
 	}
 
-	protected Thread playThread = new UgolkiThread();
-	
 	class UgolkiThread extends CheckersCanvas.CanvasThread {
 		@Override
 		 public void doAutoPlay(int currentPlayer2) {
@@ -229,19 +228,25 @@ public class UgolkiCanvas extends CheckersCanvas {
 			 }
 		 }
 		private void subAutoPlay(BaseAutomatePlayer autoPlayer, int playerType, int nextPlayerType){
+			mainPlainCheckers.mylog("Entering subAutoPlay: " + toPlayerSideId(playerType) );
 			autoPlayer.setCurrentTableState(getUgolkiState());
 			autoPlayer.execute();
 			 TableMove move = autoPlayer.getNextMove();
-			 System.out.println(autoPlayer.getSide().getPlayerSymbol() + " click (from) on " + move.getFrom().toString());
-			 doClickSquare( move.getFrom().getXCoord(),move.getFrom().getYCoord()); //change
+			 mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (from) on " + move.getFrom().toString());
+			 setClickerId(toPlayerSideId(getCurrentPlayer()));//FIXME clickerId should be paremeter to pressMouseInternal
+			 isTransmitClick = true;
+			 doClickSquare ( move.getFrom().getXCoord(),move.getFrom().getYCoord());
 			 paint(getGraphics());
 			 try {
 				Thread.sleep(autoSleepTime);
 			} catch (InterruptedException e) {
 			}
-			doClickSquare( move.getTo().getXCoord(),move.getTo().getYCoord());
-			System.out.println(autoPlayer.getSide().getPlayerSymbol() + " click (to) on " + move.getFrom().toString() + ", hval: " + move.getValue());
-			 paint(getGraphics());//TODO in the future - can put animation of moving
+			setClickerId(toPlayerSideId(getCurrentPlayer()));//FIXME clickerId should be paremeter to pressMouseInternal
+			isTransmitClick = true;
+			doClickSquare ( move.getTo().getXCoord(),move.getTo().getYCoord());
+			paint(getGraphics());
+			mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (to) on " + move.getFrom().toString() + ", hval: " + move.getValue());
+			mainPlainCheckers.mylog("Exiting subAutoPlay: " );
 		}
 		
 	}
