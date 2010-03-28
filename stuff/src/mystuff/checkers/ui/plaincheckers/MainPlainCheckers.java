@@ -256,12 +256,13 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 
 	public void recieveClick(String row, String col, String fromSourceId){
 		if(!ownerId.equals(fromSourceId)){
+			//check if it is his turn
+			if(!(canvas.getCurrentPlayer() == canvas.id2CurrentPlayer(fromSourceId))){
+				return;
+			}
 			System.out.println("doClick recieved: <" + row + "," + col + ">");
 			canvas.setClickerId(fromSourceId); // the id is cleared in canvas after each move
 			canvas.mousePressedInternal(new int[] {Integer.parseInt(row), Integer.parseInt(col)},false );
-	//		canvas.doClickSquare(Integer.parseInt(row), Integer.parseInt(col),false);
-		}else{
-			mylog("SourceID == fromSourceId: " + ownerId + " : " + fromSourceId);
 		}
 	}
 
