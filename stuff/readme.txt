@@ -1,1 +1,0 @@
-Hi. This is Ugolki (corners) board game project.
