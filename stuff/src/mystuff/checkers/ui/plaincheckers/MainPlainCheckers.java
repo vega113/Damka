@@ -24,17 +24,12 @@ package mystuff.checkers.ui.plaincheckers;
 import java.awt.*;
 import java.awt.event.*;
 import java.lang.reflect.InvocationTargetException;
-import java.sql.Time;
-import java.sql.Timestamp;
 import java.text.SimpleDateFormat;
-import java.util.Calendar;
+import java.util.Arrays;
 import java.util.Date;
-import java.util.UUID;
 import javax.swing.JApplet;
-import javax.swing.JFrame;
 import javax.swing.SwingUtilities;
-
-import mystuff.checkers.ui.ugolki.MainVisualUgolki;
+import javax.swing.Timer;
 import netscape.javascript.JSException;
 import netscape.javascript.JSObject;
 
@@ -42,11 +37,22 @@ import netscape.javascript.JSObject;
 
 public class MainPlainCheckers extends JApplet {
 	
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 7874762142864820900L;
 	protected static final String BLACK_COMPUTER = "BLACK computer";
 	protected static final String RED_COMPUTER = "RED computer";
 	public static String SIDE_RED = "red";
 	public static String SIDE_BLACK = "black";
-	private boolean isDebugMode = true;
+	private boolean isDebugMode = false;
+	
+	public static final String CLICK_TYPE_SELECT = "select";
+	public static final String CLICK_TYPE_MOVE = "move";
+	
+	protected String[] lstClickRcvd = null;
+	
+//	Consumer clickConsumer = null;
 	
 
    /* The main applet class only lays out the applet.  The work of
@@ -65,9 +71,12 @@ protected static final int BOARDSIZE = 164*2;
 //	}
 
 public final static String UNIDENTIFIED_ID = "unidentified";
+private static final int TIMER_DELAY = 2000;
 public String ownerId = UNIDENTIFIED_ID;
 
 protected CheckersCanvas canvas;
+private Timer timer;
+protected Thread consumerThread;
 
    public MainPlainCheckers() {
 //		setTitle(getMainClassName());
@@ -88,26 +97,26 @@ public static void main(String[] args) {
 
 public void init(){
 	final MainPlainCheckers frame = this;
-//	 try {
-//		SwingUtilities.invokeAndWait(new Runnable() {
-//				public void run() {
-//					
-//				}
-//			});
-//	} catch (InterruptedException e) {
-//		e.printStackTrace();
-//	} catch (InvocationTargetException e) {
-//		e.printStackTrace();
-//	}
-	canvas = initFrameNonStatic(frame);
-	canvas.setAutoBlack(true);
-	canvas.setAutoRed(true);
-	canvas.setRedPLayerName(RED_COMPUTER);
-	canvas.setBlackPLayerName(BLACK_COMPUTER);
-	canvas.setOwnerRed(false);
-	canvas.setOwnerBlack(false);
-	canvas.setApplet(frame);
-	System.out.println("Initialized! Applet ownerId: " + ownerId );
+	 try {
+		SwingUtilities.invokeAndWait(new Runnable() {
+				public void run() {
+					canvas = initFrameNonStatic(frame);
+					canvas.setAutoBlack(true);
+					canvas.setAutoRed(true);
+					canvas.setRedPLayerName(RED_COMPUTER);
+					canvas.setBlackPLayerName(BLACK_COMPUTER);
+					canvas.setOwnerRed(false);
+					canvas.setOwnerBlack(false);
+					canvas.setApplet(frame);
+					System.out.println("Initialized! Applet ownerId: " + ownerId );
+				}
+			});
+	} catch (InterruptedException e) {
+		e.printStackTrace();
+	} catch (InvocationTargetException e) {
+		e.printStackTrace();
+	}
+	
 	}
 /**
  * @param frame
@@ -176,11 +185,6 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	// Note: The constructor creates the buttons board.resignButton
 	// and board.newGameButton and the Label board.message.
 	frame.getContentPane().add(board);
-	int red = Color.red.getRGB();
-	int green = Color.green.getRGB();
-	int blue = Color.blue.getRGB();
-	int col1 = 
-		(int) (Math.sqrt(180*red + 204*green + 100*blue));
 	frame.getContentPane().setBackground(new Color(220,220,220));
 	board.newGameButton.setBackground(Color.lightGray);
 	frame.getContentPane().add(board.newGameButton);
@@ -227,8 +231,14 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 
 	frame.setSize(600, 500);
 	frame.setVisible(true);
+	
+	//timer = new Timer(TIMER_DELAY, new MyTimerListener());
+	//clickConsumer = new Consumer(queue);
+	//consumerThread =  new Thread(clickConsumer);
+	//consumerThread.start();
 	return board;
 }
+
 /**
  * @return
  */
@@ -252,26 +262,101 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 		return board;
 	}
 
-
-
-	public void recieveClick(String row, String col, String fromSourceId){
+//	BlockingQueue<String[]> queue = new LinkedBlockingQueue<String[]>();
+//	 protected class Consumer implements Runnable {
+//		 int count = 0;
+//		   private final BlockingQueue<String[]> queue;
+//		   Consumer(BlockingQueue<String[]> q) { queue = q; }
+//		   public void run() {
+//		     try {
+//		       while (true) {
+//		    	   ++count;
+//		    	   int thisCount = count;
+//		    	   mylog("enter consume while : " + thisCount);
+//		    	   
+//		    	   consume(queue.take()); 
+//		    	   mylog("after consume while" + thisCount);
+//		    	   }
+//		     } catch (InterruptedException ex) { ex.printStackTrace();}
+//		   }
+//		   void consume(Object x) {
+//			   String[] clickInput = (String[])x;
+//			   mylog("Consume: " + Arrays.toString(clickInput) + "playThread.isAlive: " + canvas.playThread.isAlive());
+////			  while(canvas.playThread.isAlive()){
+////				  try {
+////					  mylog("sleeping in consume");
+////					Thread.sleep(3000);
+////				} catch (InterruptedException e) {
+////					e.printStackTrace();
+////				}
+////			  }
+//			   handleClick(clickInput[0], clickInput[1], clickInput[2], clickInput[3]);
+//		   }
+//		 }
+	
+	public void recieveClick(String row, String col, String fromSourceId, String clickType){
 		if(!ownerId.equals(fromSourceId)){
+			System.out.println("doClick recieved: <" + row + "," + col + ">" + ", " + fromSourceId + "," + clickType);
 			//check if it is his turn
-			if(!(canvas.getCurrentPlayer() == canvas.id2CurrentPlayer(fromSourceId))){
+			if(!(canvas.getCurrentPlayer() == canvas.waveId2CurrentPlayer(fromSourceId))){
+				System.out.println("It's not turn of: " +  fromSourceId + ", skipping." + " From: " + fromSourceId + ", currentPlayer: " + canvas.toPlayerWaveId(canvas.getCurrentPlayer()) );
 				return;
 			}
-			System.out.println("doClick recieved: <" + row + "," + col + ">");
-			canvas.setClickerId(fromSourceId); // the id is cleared in canvas after each move
-			canvas.mousePressedInternal(new int[] {Integer.parseInt(row), Integer.parseInt(col)},false );
+//			try {
+//				queue.put(new String[] {row,col,fromSourceId,clickType});
+//				if(!consumerThread.isAlive()){
+//					try{
+//						consumerThread.resume();
+//					}catch(Exception e){
+//						try{
+//							consumerThread.start();
+//						}catch(Exception e1){
+//							mylog(e1.getMessage());
+//						}
+//					}
+//				}
+//				
+//			} catch (InterruptedException e) {
+//				e.printStackTrace();
+//			}
+			handleClick(row, col, fromSourceId, clickType);
 		}
 	}
+	private void handleClick(String row, String col, String fromSourceId,
+			String clickType) {
+		if(fromSourceId.equals(ownerId)){
+			return;
+		}
+		mylog(getTimeStr() + ": " + "Entering handleClick: " + row + "," + col + "," + fromSourceId + "," + clickType + " : ownerID : " + ownerId);
+		System.out.println(getTimeStr() + ": " + "Entering handleClick: " + row + "," + col + "," + fromSourceId + "," + clickType + " : ownerID : " + ownerId);
+		lstClickRcvd = new String[] {row,col,fromSourceId,clickType};
+		canvas.setClickerId(fromSourceId); // the id is cleared in canvas after each move
+		canvas.mousePressedInternal(new int[] {Integer.parseInt(row), Integer.parseInt(col)},false );
+		canvas.paint(canvas.getGraphics());
+//		try {
+//			
+//			if(clickType.equals(CLICK_TYPE_SELECT)){
+//				if (timer.isRunning()) {
+//					timer.restart();
+//				} else {
+//					timer.start();
+//				}
+//			}
+//		} catch (Exception e) {
+//			mylog("Exiting handleClick:error: " + e.getMessage());
+//			System.out.println("Exiting handleClick:error: " + e.getMessage());
+//		}
+		mylog("Exiting handleClick:");
+	}
 
-	public void transmitClick(int row, int col){
+	public void transmitClick(int row, int col, String clickType){
 		mylog("entering transmitClick: " + row + "," + col);
-		String funcStr = "recieveMsgDoClick('" + row + "','" + col + "'," +"'"+ ownerId.toString() + "')";
+		String funcStr = "recieveMsgDoClick('" + row + "','" + col + "'," +"'"+ ownerId.toString()+"'"+ "," + "'"+ clickType +"')";
 		try {
-	        JSObject window = JSObject.getWindow(this);
-	        window.eval(funcStr);
+	        JSObject window = aquireJSObject();
+	       if(window != null){
+	    	   window.eval(funcStr);
+	       }
 	    } catch (JSException jse) {
 	//       System.out.println(jse.getMessage());
 	    }catch (Exception e) {
@@ -293,9 +378,10 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 		 */
 		String funcStr = "recieveMsgDoClickNewGame('" + ownerId + "')";
 		try {
-	        JSObject window = JSObject.getWindow(this);
-	        window.eval(funcStr);
-	        window.eval("mylog('ver 22')");
+	        JSObject window = aquireJSObject();
+	        if(window != null){
+		    	   window.eval(funcStr);
+		       }
 	    } catch (JSException jse) {
 	//    	mylog(jse.getMessage());
 	    }catch (Exception e) {
@@ -305,7 +391,7 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 
 	public void recieveClickNewGame(String clickerWaveId){
 		mylog("recieved click new game, source: " + clickerWaveId);
-		if(clickerWaveId.equals(ownerId) || canvas.gameInProgress){
+		if(clickerWaveId.equals(ownerId) || canvas.gameInProgress || isBothPLayerAI()){
 			return;
 		}else{
 			if(!canvas.redPlayerWaveId.equals(ownerId) || !canvas.blackPlayerWaveId.equals(ownerId) ){
@@ -314,10 +400,78 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 			canvas.doNewGame(false);
 		}
 	}
+	/**
+	 * if opponent has selected a square but we still didn't received a move after a while
+		check if client refresh is needed.
+		client refresh is required when: 
+		1)One applet waits that other will send a move when square is already selected
+		2)Other applet waits when he just sent move and other should send a square select
+	 */
+	public void doRefreshIfRequired(){
+		mylog("Entering isClientRefreshRequired");
+		//get the wave state
+		String funcStr = null;
+		Object wstateStr = null;
+		String[] clickLastArr = null;
+		String[] clickLLastArr = null;
+		try {
+			funcStr = "getWstate";
+	        JSObject window = aquireJSObject();
+	        if(window == null) return;
+	        wstateStr = window.call(funcStr,null);
+	        
+	        if(wstateStr == null){
+	        	mylog("Exiting isClientRefreshRequired: false" );
+	        	return ;
+	        }
+	        
+	        int lastClickNum = Integer.parseInt(String.valueOf(wstateStr).split(",")[3]);
+	        
+	        funcStr = "getClickData";
+	        Object clickDataStr1  = window.call(funcStr,new Object[] {lastClickNum});
+	        if(clickDataStr1 == null) {
+	        	mylog("Exiting isClientRefreshRequired: false" );
+	        	return ;
+	        }
+	        clickLastArr = String.valueOf(clickDataStr1).split("$$");
+	        
+	        Object clickDataStr2  = window.call(funcStr,new Object[] {lastClickNum-1});
+	        if(clickDataStr2 == null) {
+	        	mylog("Exiting isClientRefreshRequired: false" );
+	        	return ;
+	        }
+	        clickLLastArr = String.valueOf(clickDataStr2).split("$$");
+	        
+	        // now check
+	        if(clickLastArr[3].equals(CLICK_TYPE_MOVE) && clickLLastArr[3].equals(CLICK_TYPE_SELECT) && !clickLastArr[2].equals(ownerId) && !clickLLastArr[2].equals(ownerId) 
+	        		&& clickLLastArr[0].equals(lstClickRcvd[0]) &&  clickLLastArr[1].equals(lstClickRcvd[1])){
+	        	mylog("Dedected Freeze! missing: " + Arrays.toString(clickLLastArr));
+	        	System.out.println("Dedected Freeze! missing: ");
+	        	handleClick(clickLastArr[0],clickLastArr[1],clickLastArr[2],clickLastArr[3]);
+	        	return ;
+	        }else if(clickLastArr[3].equals(CLICK_TYPE_SELECT) && clickLLastArr[3].equals(CLICK_TYPE_MOVE) && !clickLastArr[2].equals(ownerId) && !clickLLastArr[2].equals(ownerId) 
+	        		&& clickLLastArr[0].equals(lstClickRcvd[0]) &&  clickLLastArr[1].equals(lstClickRcvd[1])){
+	        	mylog("Dedected Freeze! missing: " + Arrays.toString(clickLLastArr));
+	        	System.out.println("Dedected Freeze! missing: ");
+	        	handleClick(clickLastArr[0],clickLastArr[1],clickLastArr[2],clickLastArr[3]);
+	        	return ;
+	        }
+	        
+	    } catch (JSException jse) {
+	//    	mylog(jse.getMessage());
+	    }catch (Exception e) {
+	    	mylog(e.getMessage());
+	    }
+	    mylog("Exiting isClientRefreshRequired: false" );
+	}
 
+	private boolean isBothPLayerAI() {
+		return canvas.isAutoBlack() && canvas.isAutoRed();
+	}
 	public void recieveWaveId(String viewerId){
 		ownerId = viewerId;
 		mylog("recieved owner id: " + ownerId );
+		System.out.println("recieved owner id: " + ownerId );
 	}
 	
 	public void receivePlayerInfo(String side,String playerName, String playerWaveId){
@@ -351,42 +505,84 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	}
 	
 	public void receiveGameOver(String looserWaveId, String winnerWaveId){
+		mylog("entering receiveGameOver: " + looserWaveId);
 		if(canvas.gameInProgress == true){
-			canvas.setCurrentPlayer(canvas.id2CurrentPlayer(looserWaveId));
-			canvas.doResign();
+			String[] strMsg = new String[2];
+			if(looserWaveId.equals(canvas.redPlayerWaveId)){
+				String playerNameResigned = canvas.getRedPLayerName();
+				String playerNameWon = canvas.getBlackPLayerName();
+				strMsg[0] = playerNameResigned + " resigns.";
+				strMsg[1] = playerNameWon + " wins.";
+				canvas.gameOver(strMsg, canvas.waveId2CurrentPlayer(looserWaveId), false);
+			}else{
+				String playerNameResigned = canvas.getBlackPLayerName();
+				String playerNameWon = canvas.getRedPLayerName();
+				strMsg[0] = playerNameResigned + " resigns.";
+				strMsg[1] = playerNameWon + " wins.";
+				canvas.gameOver(strMsg, canvas.waveId2CurrentPlayer(looserWaveId), false);
+			}
 		}
 	}
 	
 	public void setDebugMode(String isDebug){
 		System.out.println("Entering debug mode: " + isDebug);
-		isDebugMode = Boolean.parseBoolean(isDebug);
+//		isDebugMode = Boolean.parseBoolean(isDebug);
 		System.out.println("Exiting debug mode: ");
 	}
 
 	private void myhlog(String str){
+		
+			JSObject window = aquireJSObject();
+			if(window != null){
+				window.eval("mylog('" + "applet: " +  str + "')");
+			}
+	}
+	protected JSObject aquireJSObject() {
+		JSObject window = null;
 		try{
-			JSObject window = JSObject.getWindow(this);
-			window.eval("mylog('" + "applet: " +  str + "')");
+			window = JSObject.getWindow(this);
 		} catch (JSException jse) {}
+		catch(java.lang.ClassCastException cce){}
+		return window;
 	}
 	public void mylog(String str){
-		Date time = new Date();
-		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss:SS");
-	
 		String logStr = null;
 		if(ownerId != null){
 			logStr = ownerId.split("@")[0] + " : " + str;
 		}else{
-			logStr = sdf.format(time) + ": " + str;
+			logStr = getTimeStr() + ": " + str;
 		}
 		if(isDebugMode){
 			myhlog(logStr);
 		}else{
-			System.out.println(logStr);
+			System.out.println(getTimeStr() + ": " + logStr);
 		}
+	}
+	public String getTimeStr() {
+		Date time = new Date();
+		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss:SS");
+		return sdf.format(time);
 	}
 
 
+	protected class  MyTimerListener implements ActionListener {
+
+		public void actionPerformed(ActionEvent e) {
+			mylog("Entering timer");
+			Date date = new Date();
+			SimpleDateFormat fmt = new SimpleDateFormat("hh:mm:ss");
+			System.out.println(fmt.format(date) + ": " + "In timer, last move: " + Arrays.toString(lstClickRcvd));
+			if(lstClickRcvd[3] != null && lstClickRcvd[3].equals(CLICK_TYPE_MOVE)){
+				timer.stop();
+			}else{
+				// if it is still my turn
+				if(canvas.getCurrentPlayer() == canvas.waveId2CurrentPlayer(ownerId)){
+					doRefreshIfRequired();
+				}
+			}
+			mylog("Exiting timer");
+		}
+	}
    
 } 
 

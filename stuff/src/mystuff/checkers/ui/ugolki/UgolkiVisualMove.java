@@ -13,6 +13,7 @@
  */
 package mystuff.checkers.ui.ugolki;
 
+import mystuff.checkers.table.CellIndex;
 import mystuff.checkers.table.TableMove;
 import mystuff.checkers.ui.plaincheckers.CheckersMove;
 
@@ -35,7 +36,9 @@ public class UgolkiVisualMove extends CheckersMove {
 	  }
 	
 	public String toString() {
-		return "("+getFromRow()+","+ getFromCol()+")"+"->" + "("+getToRow()+","+ getToCol()+")";
+		CellIndex cellIndexFrom = new CellIndex(getFromRow()+1, getFromCol());
+		CellIndex cellIndexTo = new CellIndex(getToRow()+1, getToCol());
+		return cellIndexFrom.toString() +"->" + cellIndexTo.toString();
 	}
 	
 	
