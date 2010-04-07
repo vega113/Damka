@@ -524,6 +524,12 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 		}
 	}
 	
+	public void abortGame(String aborterId, String msg){
+		canvas.newGameButton.setEnabled(false);
+		canvas.resignButton.setEnabled(false);
+		displayMsg(msg);
+	}
+	
 	public void setDebugMode(String isDebug){
 		System.out.println("Entering debug mode: " + isDebug);
 //		isDebugMode = Boolean.parseBoolean(isDebug);
@@ -562,6 +568,10 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 		Date time = new Date();
 		SimpleDateFormat sdf = new SimpleDateFormat("hh:mm:ss:SS");
 		return sdf.format(time);
+	}
+	
+	public void displayMsg(String msg){
+		canvas.message.setText(msg);
 	}
 
 

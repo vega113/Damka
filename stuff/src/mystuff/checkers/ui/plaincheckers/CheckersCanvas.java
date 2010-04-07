@@ -332,7 +332,11 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			message.append("\n");
 			message.append(str[1]);
 		}
-		newGameButton.setEnabled(true);
+		if(mainPlainCheckers.ownerId.equals(MainPlainCheckers.UNIDENTIFIED_ID)){
+			newGameButton.setEnabled(true); // if in wave disable start - DESCOPED
+		}else{
+			newGameButton.setEnabled(false);
+		}
 		resignButton.setEnabled(false);
 		if(mainPlainCheckers != null){
 			redPlayerWaveId = initRedId;
