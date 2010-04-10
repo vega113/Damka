@@ -41,8 +41,8 @@ public class MainPlainCheckers extends JApplet {
 	 * 
 	 */
 	private static final long serialVersionUID = 7874762142864820900L;
-	protected static final String BLACK_COMPUTER = "BLACK computer";
-	protected static final String RED_COMPUTER = "RED computer";
+	protected static final String BLACK_COMPUTER = "Computer-Black ";
+	protected static final String RED_COMPUTER = "Computer-Red";
 	public static String SIDE_RED = "red";
 	public static String SIDE_BLACK = "black";
 	private boolean isDebugMode = false;
@@ -131,10 +131,10 @@ protected static void initFrame(MainPlainCheckers frame) {
 	          // and board.newGameButton and the Label board.message.
 	      frame.getContentPane().add(board);
 	      board.newGameButton.setBackground(Color.lightGray);
-	      frame.getContentPane().add(board.newGameButton);
+//	      frame.getContentPane().add(board.newGameButton);//
 
 	      board.resignButton.setBackground(Color.lightGray);
-	      frame.getContentPane().add(board.resignButton);
+//	      frame.getContentPane().add(board.resignButton);
 
 	      board.message.setForeground(Color.darkGray);
 	      board.message.setBackground(Color.gray);
@@ -187,10 +187,12 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	frame.getContentPane().add(board);
 	frame.getContentPane().setBackground(new Color(220,220,220));
 	board.newGameButton.setBackground(Color.lightGray);
+	board.newGameButton.setVisible(false);
 	frame.getContentPane().add(board.newGameButton);
 
 	board.resignButton.setBackground(Color.lightGray);
 	frame.getContentPane().add(board.resignButton);
+	board.resignButton.setVisible(false);
 
 	board.message.setForeground(Color.darkGray);
 	board.message.setBackground(Color.lightGray);
@@ -228,7 +230,10 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 		board.letters[i].setBounds(BOARDCOORD+ i*(BOARDSIZE/8)+ 16, BOARDCOORD + BOARDSIZE + 8 , 12, 12);
 	}
 
-
+	
+//	canvas.resignButton.setVisible(false);
+//	canvas.newGameButton.setVisible(false);
+	
 	frame.setSize(600, 500);
 	frame.setVisible(true);
 	
@@ -573,6 +578,10 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	public void displayMsg(String msg){
 		canvas.message.setText(msg);
 	}
+	
+	public void appendMsg(String msg){
+		canvas.message.append("\n" + msg);
+	}
 
 
 	protected class  MyTimerListener implements ActionListener {
@@ -592,6 +601,14 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 			}
 			mylog("Exiting timer");
 		}
+	}
+	
+	public void recieveClickStart(){
+		canvas.doNewGame(true);
+	}
+	
+	public void recieveResign(){
+		canvas.doResign();
 	}
    
 } 

@@ -782,7 +782,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 		// the row and column that the user clicked and call
 		// doClickSquare() to handle it.
 		if (gameInProgress == false){
-			setMsgTxt("Click \"New Game\" to start a new game.");
+			setMsgTxt("Click \"Start\" to start a new game.");
 			return;
 		}
 		else {

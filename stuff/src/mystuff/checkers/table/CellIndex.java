@@ -13,7 +13,7 @@ package mystuff.checkers.table;
 
 
 public class CellIndex  {
-	private static String[] abc = {"a","b","c","d","e","f","g","h"};
+	private static String[] abc = {"A","B","C","D","E","F","G","H"};
 	
 	private int m_xCoord;
 	
