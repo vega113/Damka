@@ -25,7 +25,7 @@ public abstract class BasePlayer extends BaseBean implements IPlayer{
 	protected long analyzingTime=0;
 	protected long startTime;
 	protected int m_depth;
-	protected ArrayList m_previousMovesList = null;
+//	protected ArrayList m_previousMovesList = null;
 	protected TableMove m_lastMove;
 	protected long  m_totalValidMoves = 0;
 	protected long m_totalTime = 0;
@@ -33,7 +33,7 @@ public abstract class BasePlayer extends BaseBean implements IPlayer{
 	protected IPlayableTable m_currentTableState;
 	protected TableMove[] m_validNextMoves;
 	protected IPlayableTable m_previousTableState;
-	protected Stack m_stack;
+//	protected Stack m_stack;
 
 	/* (non-Javadoc)
 	 * @see mystuff.checkers.interfaces.IPlayer#getMessage()
@@ -44,12 +44,12 @@ public abstract class BasePlayer extends BaseBean implements IPlayer{
 	public BasePlayer(PlayerSide side) {
 		super();
 		setSide(side);
-		m_stack = new Stack();
+//		m_stack = new Stack();
 	}
 	public void doMove(TableMove tableMove, IPlayableTable clonedTable){
 		try { // make the move on table
 			clonedTable.doMove(tableMove);
-			m_stack.push(tableMove);
+//			m_stack.push(tableMove);
 		} catch (InvalidMoveException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -64,7 +64,7 @@ public abstract class BasePlayer extends BaseBean implements IPlayer{
 //		TableMove backmove = new TableMove(tableMove.getTo(),tableMove.getFrom());
 		try {
 			clonedTable.undoLastMove();
-			m_stack.pop();
+//			m_stack.pop();
 		} catch (InvalidMoveException e) {
 			// TODO Auto-generated catch block
 			e.printStackTrace();
@@ -102,11 +102,11 @@ public abstract class BasePlayer extends BaseBean implements IPlayer{
 	protected String printStack(){
 		String str ="The following moves lead to win : ";
 		String moves ="";
-		for (Iterator iter = m_stack.iterator(); iter.hasNext();) {
-			TableMove move = (TableMove) iter.next();
-			moves=  moves +move.toString() +" ";
-			
-		}
+//		for (Iterator iter = m_stack.iterator(); iter.hasNext();) {
+//			TableMove move = (TableMove) iter.next();
+//			moves=  moves +move.toString() +" ";
+//			
+//		}
 		str = str + moves;
 		System.out.println(str);
 		return str;

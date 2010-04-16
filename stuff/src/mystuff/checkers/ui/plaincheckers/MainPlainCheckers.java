@@ -187,12 +187,15 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	frame.getContentPane().add(board);
 	frame.getContentPane().setBackground(new Color(220,220,220));
 	board.newGameButton.setBackground(Color.lightGray);
-	board.newGameButton.setVisible(false);
+	
 	frame.getContentPane().add(board.newGameButton);
 
 	board.resignButton.setBackground(Color.lightGray);
 	frame.getContentPane().add(board.resignButton);
-	board.resignButton.setVisible(false);
+	
+	//----------------------------------
+//	board.resignButton.setVisible(false);
+//	board.newGameButton.setVisible(false);
 
 	board.message.setForeground(Color.darkGray);
 	board.message.setBackground(Color.lightGray);
@@ -355,7 +358,7 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	}
 
 	public void transmitClick(int row, int col, String clickType){
-		mylog("entering transmitClick: " + row + "," + col);
+//		mylog("entering transmitClick: " + row + "," + col);
 		String funcStr = "recieveMsgDoClick('" + row + "','" + col + "'," +"'"+ ownerId.toString()+"'"+ "," + "'"+ clickType +"')";
 		try {
 	        JSObject window = aquireJSObject();
@@ -367,7 +370,7 @@ public CheckersCanvas initFrameNonStatic(MainPlainCheckers frame) {
 	    }catch (Exception e) {
 	//    	mylog(e.getMessage());
 	    }
-	    mylog("exiting transmitClick: " + row + "," + col);
+//	    mylog("exiting transmitClick: " + row + "," + col);
 	}
 
 	public void transmitClickNewGame(){

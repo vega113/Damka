@@ -9,12 +9,14 @@ import mystuff.checkers.table.CellIndex;
 import mystuff.checkers.table.TableState;
 
 public class MinimaxPlayerV2 extends MinimaxPlayer {
+	
+	HeuristicTable  heuristicTable =  new HeuristicTable();
 
 	public MinimaxPlayerV2(PlayerSide side) {
 		super(side);
 
 		//this is to ensure that the heuristic table is right for this side
-		setHeuristicTable(new HeuristicTable());
+		setHeuristicTable(heuristicTable);
 		if(side.equals(UgolkiConstants.PlayerSideBlue)){
 			getHeuristicTable().setTableHeuristic(getHeuristicTable().flatten2dArr(getHeuristicTable().getReversehTable()));
 		}

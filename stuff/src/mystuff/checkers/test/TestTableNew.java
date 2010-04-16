@@ -38,7 +38,7 @@ public class TestTableNew {
 		double[] arr2 = m_htable.flatten2dArr( m_htable.calcReverseHTableFromHTable( m_htable.gethTable()));
 		m_htable.setTableHeuristic(arr2);
 		double[] arr3 = m_htable.getTableHeuristicReverse();
-		m_htable.print2dArr(m_htable.getReversehTable());
+		System.out.println(m_htable.print2dArr(m_htable.getReversehTable())); 
 		assertTrue(Arrays.equals(arr1, arr3));
 	}
 

@@ -1012,7 +1012,7 @@ public abstract class BaseTableState implements IPlayableTable,Serializable{
 		&& currentCellIndex.getYCoord() >= 0;
 	}
 	public boolean isCellValidAndOccupied(CellIndex cellIndex) throws IndexOutOfBondsException{
-		 return isValidIndex(cellIndex)&& !getCellByIndex(cellIndex).getCellColor().equals(new CellColor(UgolkiConstants.CellColorUnoccupied));
+		 return isValidIndex(cellIndex)&& !getCellByIndex(cellIndex).getCellColor().equals(UgolkiConstants.CELL_UNOCCUPIED);
 	}
 	
 	/**
@@ -1086,8 +1086,8 @@ public abstract class BaseTableState implements IPlayableTable,Serializable{
 		//FIXME well-supposed to be force move, i will implement later soft move that will check things
 		//if(!isCellValidAndOccupied(fromIndex)) throw new InvalidMoveException(tableMove);
 		//if(!isCellValidAndEmpty(toIndex)) throw new InvalidMoveException(tableMove);
-		if(!isValidIndex(fromIndex)) throw new IndexOutOfBondsException(fromIndex);
-		if(!isValidIndex(toIndex)) throw new IndexOutOfBondsException(toIndex);
+//		if(!isValidIndex(fromIndex)) throw new IndexOutOfBondsException(fromIndex);
+//		if(!isValidIndex(toIndex)) throw new IndexOutOfBondsException(toIndex);
 		PlayableTableCell fromCell= getCellByIndex(fromIndex);
 		PlayableTableCell toCell= getCellByIndex(toIndex);
 		CellColor fromColor = fromCell.getCellColor();
@@ -1142,14 +1142,15 @@ public abstract class BaseTableState implements IPlayableTable,Serializable{
 	
 	}
 	public boolean isFasterWinConditionReachedForSide(BasePlayerSide player){
-		if(player.getColor() == UgolkiConstants.CellColorBlueIndex){
-			double currentDist = computeL1DistanceFromWin4Side((PlayerSide)player,this);
-			return currentDist == m_winAverageL1Distance4Blue;
-		}
-		else{
-			double currentDist = computeL1DistanceFromWin4Side((PlayerSide)player,this);
-			return currentDist == m_winAverageL1Distance4Red;
-		}
+		return isWinConditionReachedForSide(player);
+//		if(player.getColor() == UgolkiConstants.CellColorBlueIndex){
+//			double currentDist = computeL1DistanceFromWin4Side((PlayerSide)player,this);
+//			return currentDist == m_winAverageL1Distance4Blue;
+//		}
+//		else{
+//			double currentDist = computeL1DistanceFromWin4Side((PlayerSide)player,this);
+//			return currentDist == m_winAverageL1Distance4Red;
+//		}
 	}
 
 	/**

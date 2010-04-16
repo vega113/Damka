@@ -24,53 +24,12 @@ import mystuff.checkers.table.TableMove.MaxMoveComparator;
  * @author Vega
  *
  */
-public class AlphaBetaPlayer extends MinimaxPlayer {
+public class AlphaBetaPlayer extends MinimaxPlayerV2 {
 
 
 	public AlphaBetaPlayer(PlayerSide side) {
 		super(side);
 	}
-	protected double doMinimaxForMove(TableMove move) {
-		double minmaxValue;
-		minmaxValue=AlphaBeta(move,getSide(),m_maxDepth, 0, 10000);
-		return minmaxValue;
-	}
-	
-	protected double AlphaBeta(TableMove tableMove, PlayerSide playerSide, int depth, double alpha, double beta){
-		if(depth == 1){
-			m_depth = depth;
-			doMove(tableMove);
-			alpha =  getHeuristicValueForBoardState(getSide());
-			undoLastMove();
-			return alpha;
-		}
-		doMove(tableMove);
-		if(playerSide.equals(getSide())){
-			if ( getClonedTable().isFasterWinConditionReachedForSide(getSide())){
-				isWinConditionReached = true;
-				undoLastMove();
-				m_depth = depth;
-				return getHeuristicValueForBoardState(getSide());
-			}
-		}
-		TableMove[] validMoves = getValidMoves(playerSide.getNextPlayerSide());// get all children
-//		if(playerSide.getNextPlayerSide().equals(getSide())){
-//			sortMoves(validMoves,TableMove.AscValueMoveComparator);
-//		}
-//		else
-//		{
-//			sortMoves(validMoves,TableMove.DescValueMoveComparator);
-//		}
-		for (int i = 0; i < validMoves.length; i++) {			
-			alpha = Math.max(alpha,-AlphaBeta(validMoves[i],playerSide.getNextPlayerSide(),depth-1, -beta, -alpha));
-			if (alpha >= beta) {
-				break;			
-			}
-		}
-		undoLastMove();
-		return alpha;
-	}
-	
 	/**
 	 * @param side
 	 * @param depth
@@ -78,5 +37,38 @@ public class AlphaBetaPlayer extends MinimaxPlayer {
 	public AlphaBetaPlayer(PlayerSide side, int depth) {
 		super(side, depth);
 	}
+	
+	protected double alphaBeta(TableMove tableMove, PlayerSide playerSide, int depth, double alpha, double beta){
+		if(depth == 1){
+			m_depth = depth;
+			doMove(tableMove);
+			alpha =  getHeuristicValueForBoardState(getSide());
+			undoLastMove();
+			return alpha;
+		}
+		if(getClonedTable().isWinConditionReachedForSide(getSide())){
+			isWinConditionReached = true;
+			return getHeuristicValueForBoardState(getSide());
+		}
+		doMove(tableMove);
+		TableMove[] validMoves = getValidMoves(playerSide);// get all children
+		for (int i = 0; i < validMoves.length; i++) {			
+			alpha = Math.max(alpha,-alphaBeta(validMoves[i],playerSide.getNextPlayerSide(),depth-1, -beta, -alpha));
+			if (alpha >= beta) {
+				break;			
+			}
+		}
+		undoLastMove();
+		return alpha;
+	}
+	/* (non-Javadoc)
+	 * @see mystuff.checkers.player.MinimaxPlayer#MaxValue(mystuff.checkers.table.TableMove, int)
+	 */
+	@Override
+	protected double MaxValue(TableMove tableMove, int depth) {
+		return alphaBeta(tableMove,getSide(),depth, 0, 10000);
+	}
+	
+	
 
 }

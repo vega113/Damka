@@ -43,12 +43,6 @@ public class MinimaxPlayer extends BaseAutomatePlayer {
 			for(int i =0; i< size;i++){
 				double evaluationValue4Move = doMinimaxForMove(m_validNextMoves[i]);
 				m_validNextMoves[i].setValue(evaluationValue4Move);
-//				if(isWinConditionReached){
-//					setDistance(evaluationValue4Move);
-//					m_indexOfBestMove = i;
-//					m_isReady = true;
-//					return;
-//				}
 				if (evaluationValue4Move > getDistance() || (evaluationValue4Move == getDistance() && m_depth < m_depthOfBestMove)) {
 					m_indexOfBestMove = i;
 					m_depthOfBestMove = m_depth;
@@ -57,8 +51,6 @@ public class MinimaxPlayer extends BaseAutomatePlayer {
 			}
 			m_nextBestMove = m_validNextMoves[m_indexOfBestMove];
 			if(isWinConditionReached && m_depthOfBestMove <  m_maxDepth && m_maxDepth > 1){
-				//need to investigate
-				int m_maxDepthTemp =m_maxDepth;
 				m_maxDepth =m_depthOfBestMove;
 				AnalyzeMoves();
 				System.out.println("Giving Up for move:" + m_nextBestMove.toString() + "\n");
@@ -69,7 +61,7 @@ public class MinimaxPlayer extends BaseAutomatePlayer {
 	}
 	protected double doMinimaxForMove(TableMove move) {
 		double minmaxValue;
-		m_stack.clear();
+//		m_stack.clear();
 		if(m_maxDepth == 1){
 			doMove(move);
 			minmaxValue = getHeuristicValueForBoardState(getSide());
@@ -99,7 +91,7 @@ public class MinimaxPlayer extends BaseAutomatePlayer {
 			return getHeuristicValueForBoardState(getSide());
 		}
 		TableMove[] validMoves = getValidMoves(getSide().getNextPlayerSide());// get all children
-		Arrays.sort(validMoves, TableMove.AscValueMoveComparator);
+//		Arrays.sort(validMoves, TableMove.AscValueMoveComparator);
 //	   if the adversary is to play at node
 		doMove(tableMove);
 		alpha = INFINITY;
@@ -125,7 +117,6 @@ public class MinimaxPlayer extends BaseAutomatePlayer {
 		}
 		doMove(tableMove);
 		TableMove[] validMoves = getValidMoves(getSide());// get all children
-		Arrays.sort(validMoves,TableMove.DescValueMoveComparator);
 		alpha = -1*INFINITY;
 		for (int i = 0; i < validMoves.length; i++) {		
 			alpha = Math.max(alpha,MinValue(validMoves[i],depth-1));

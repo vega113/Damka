@@ -101,7 +101,7 @@ public class BaseAutomatePlayer extends BasePlayer {
 
 	public BaseAutomatePlayer(PlayerSide side) {
 		super(side);
-		m_previousMovesList = new ArrayList();
+//		m_previousMovesList = new ArrayList();
 		m_bestPlyMoveList = new LinkedList();
 		fewLastMoves = new LinkedList();
 		
@@ -118,7 +118,6 @@ public class BaseAutomatePlayer extends BasePlayer {
 			m_depth = 0;
 			isWinConditionReached = false;
 		} catch (CloneNotSupportedException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
 		m_distance = -10000;
@@ -232,14 +231,13 @@ public class BaseAutomatePlayer extends BasePlayer {
 	 */
 	public void doMove(TableMove tableMove) {
 		m_lastMove = tableMove;
-		m_previousMovesList.add(tableMove);
-		// TODO Auto-generated method stub
+//		m_previousMovesList.add(tableMove);
 		super.doMove(tableMove, getClonedTable());
 	}
 
 	public void undoLastMove(){
 		super.undoMove(null,getClonedTable());
-		m_previousMovesList.remove(m_previousMovesList.size()-1);
+//		m_previousMovesList.remove(m_previousMovesList.size()-1);
 	}
 
 

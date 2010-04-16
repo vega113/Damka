@@ -363,16 +363,16 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 				if(mainPlainCheckers.ownerId.equals(blackPlayerWaveId)){
 					mainPlainCheckers.transmitGameOver(mainPlainCheckers.ownerId,
 							redPlayerWaveId);
-					mainPlainCheckers.mylog("transmitGameOver: black");
+//					mainPlainCheckers.mylog("transmitGameOver: black");
 				}else{
 					mainPlainCheckers.transmitGameOver(mainPlainCheckers.ownerId,blackPlayerWaveId);
-					mainPlainCheckers.mylog("transmitGameOver: red");
+//					mainPlainCheckers.mylog("transmitGameOver: red");
 				}
 			}
 		}
 		try{
 			playThread.stop();
-			mainPlainCheckers.mylog("play thread stopped");
+//			mainPlainCheckers.mylog("play thread stopped");
 		}catch(Exception e){}
 		
 		
@@ -382,7 +382,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 
 
 	protected boolean doClickSquare(int row, int col ) {
-		mainPlainCheckers.mylog("entering doClickSquare: " + row + "," + col);
+//		mainPlainCheckers.mylog("entering doClickSquare: " + row + "," + col);
 		for (int i = 0; i < legalMoves.length; i++)
 			if (legalMoves[i].fromRow == row && legalMoves[i].fromCol == col) {
 				selectedRow = row;
@@ -396,9 +396,9 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 				if (mainPlainCheckers != null  && isTransmitClick) {
 					mainPlainCheckers.transmitClick(row, col, MainPlainCheckers.CLICK_TYPE_SELECT);
 				}else{
-					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
+//					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
 				}
-				mainPlainCheckers.mylog("exiting doClickSquare (select square): " + row + "," + col);
+//				mainPlainCheckers.mylog("exiting doClickSquare (select square): " + row + "," + col);
 				return false;
 			}
 
@@ -420,13 +420,13 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 				movesStack.push(legalMoves[i]);
 				playersStack.push(toPlayerName(getCurrentPlayer()));
 //				if (mainPlainCheckers != null && toPlayerSideId(getCurrentPlayer()).equals(clickerId)) {
-				mainPlainCheckers.mylog("curentPlayerSide: " + toPlayerSideId(getCurrentPlayer()) + ", clickerId: " + clickerId);
+//				mainPlainCheckers.mylog("curentPlayerSide: " + toPlayerSideId(getCurrentPlayer()) + ", clickerId: " + clickerId);
 				if (mainPlainCheckers != null  && isTransmitClick) {
 					mainPlainCheckers.transmitClick(row, col, MainPlainCheckers.CLICK_TYPE_MOVE);
 				}else{
-					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
+//					mainPlainCheckers.mylog("not transmitting click: " + row + "," + col);
 				}
-				mainPlainCheckers.mylog("exiting doClickSquare (move): " + legalMoves[i].toString());
+//				mainPlainCheckers.mylog("exiting doClickSquare (move): " + legalMoves[i].toString());
 				return true;
 			}
 
@@ -488,7 +488,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	 * 
 	 */
 	protected void switchNextPlayer(int currentPlayer) {
-		mainPlainCheckers.mylog("Entering switchNextPlayer: " + toPlayerSideId(currentPlayer));
+//		mainPlainCheckers.mylog("Entering switchNextPlayer: " + toPlayerSideId(currentPlayer));
 		if (getCurrentPlayer() == CheckersData.BLACK) {
 			
 			setCurrentPlayer(CheckersData.RED);// go on to the next player
@@ -516,7 +516,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			
 		}
 		setLegalMoves(getBoard().getLegalMoves(getCurrentPlayer()));
-		mainPlainCheckers.mylog("Exiting switchNextPlayer");
+//		mainPlainCheckers.mylog("Exiting switchNextPlayer");
 		
 	}
 
@@ -544,7 +544,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	 * @param move
 	 */
 	protected void doMovePiece(CheckersMove move) {
-
+		mainPlainCheckers.mylog(toPlayerSideName( getCurrentPlayer()) + ": " + move.toString());
 		board.makeMove(move);
 
 		/* If the move was a jump, it's possible that the player has another
@@ -771,7 +771,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	BlockingQueue<int[]> posQueue = new LinkedBlockingQueue<int[]>();
 	public void mousePressedInternal(int[] posIn, boolean isTransmitClick) {
 		this.isTransmitClick = isTransmitClick;
-		mainPlainCheckers.mylog("entering mousePressedInternal, isTransmit:  " + isTransmitClick + ", " + Arrays.toString(posIn));
+//		mainPlainCheckers.mylog("entering mousePressedInternal, isTransmit:  " + isTransmitClick + ", " + Arrays.toString(posIn));
 		try {
 			posQueue.put( posIn);
 		} catch (InterruptedException e2) {
@@ -807,7 +807,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 			}
 			
 		}
-		mainPlainCheckers.mylog("exiting mousePressedInternal: " + ", " + Arrays.toString(posIn));
+//		mainPlainCheckers.mylog("exiting mousePressedInternal: " + ", " + Arrays.toString(posIn));
 //		mainPlainCheckers.mylog("playThread.isAlive: " + playThread.isAlive());
 	}
 
@@ -1037,10 +1037,10 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 	public class CanvasThread extends Thread {
 		@SuppressWarnings("deprecation")
 		public void run() {
-	    	 mainPlainCheckers.mylog("entering " + this.getClass().getName() + "");
+//	    	 mainPlainCheckers.mylog("entering " + this.getClass().getName() + "");
 	    	while(gameInProgress){
 	    		paint(getGraphics());
-	    		mainPlainCheckers.mylog("player thread in while : looping");
+//	    		mainPlainCheckers.mylog("player thread in while : looping");
 	    		boolean isOwnerClick = false;
 	    		if(getCurrentPlayer() == CheckersData.RED && (isOwnerRed || clickerId.equals(redPlayerWaveId))){
 	    			isOwnerClick = true;
@@ -1050,7 +1050,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
 //	    			clickerId = "";
 	    		}
 	    		 if(isAutoPlayer(getCurrentPlayer()) && isOwnerClick){
-	    			 mainPlainCheckers.mylog("playing auto: " + toPlayerSideId(getCurrentPlayer()));
+//	    			 mainPlainCheckers.mylog("playing auto: " + toPlayerSideId(getCurrentPlayer()));
 	    			 try {
 						playThread.sleep(200);
 					} catch (InterruptedException e) {
@@ -1082,7 +1082,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
  	 					paint(getGraphics());
  	 					continue;
  	 				}else{
- 	 					mainPlainCheckers.mylog("playThread is going to Zzzzz...");
+// 	 					mainPlainCheckers.mylog("playThread is going to Zzzzz...");
  	 					threadSuspended = false;
  	 					paint(getGraphics());
  	 	 				try {
@@ -1095,7 +1095,7 @@ public class CheckersCanvas extends Canvas implements ActionListener, MouseListe
  	 				
 	 	 		}
 	    	}
-	    	 mainPlainCheckers.mylog("exiting " + this.getClass().getName() + "");
+//	    	 mainPlainCheckers.mylog("exiting " + this.getClass().getName() + "");
 	     }
 	     public void doAutoPlay(int currPLayer){
 	    	 CheckersCanvas.this.doAutoPlay(currPLayer);

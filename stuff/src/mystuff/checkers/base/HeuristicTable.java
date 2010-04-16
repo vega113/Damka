@@ -1,13 +1,17 @@
 package mystuff.checkers.base;
 
 import java.util.Arrays;
+import java.util.Formatter;
+import java.util.logging.SimpleFormatter;
 
 import mystuff.checkers.player.PlayerSide;
 
 public class HeuristicTable {
 	
+	public double AVE_FACTOR  = 5;
+	protected  double DIV_FACTOR = 1.2;
 	//array to contain the heuristic values table
-	private double[][] hTable;
+	protected double[][] hTable;
 	private double[][] reversehTable;
 	private double[] flatHTable;
 	private double[] revFlatHTable;
@@ -15,7 +19,6 @@ public class HeuristicTable {
 	public HeuristicTable() {
 		hTable = initTableHeursitc();
 		setTableHeuristic(flatten2dArr(hTable));
-		
 	}
 	
 	public void setTableHeuristic(double[] arr){
@@ -79,7 +82,7 @@ public class HeuristicTable {
 		return reversehTable;
 	}
 	
-	public static double[][] initTableHeursitc(){
+	public  double[][] initTableHeursitc(){
 		int lenX = 10;
 		int lenY = 10;
 		double[][] htable = new double[lenX][lenY];
@@ -105,9 +108,26 @@ public class HeuristicTable {
 					double down = htable[i+1][j];
 					double val = 0;
 					if(j < lenY/2){
-						val = ((left + 2*leftDown + 2*down) /5)/1.2;
+						val = ((left + 2*leftDown + 2*down) /AVE_FACTOR)/2.2;
 					}else{
-						val = ((2*left + 2*leftDown + down) /5)/1.2;
+						val = ((2*left + 2*leftDown + down) /AVE_FACTOR)/2.2;
+					}
+					htable[i][j] = val;
+				}
+			}
+		}
+		
+		for (int i = lenX; i> -1; i--){
+			for(int j = 0; j < lenY; j++){
+				if( i > 0 && j > 0 && i < lenX-1 && j < lenY-1 && htable[i][j] == 0){
+					double left = htable[i][j-1];
+					double leftDown = htable[i+1][j-1];
+					double down = htable[i+1][j];
+					double val = 0;
+					if(j < lenY/2){
+						val = ((left + 2*leftDown + 2*down) /AVE_FACTOR)/DIV_FACTOR;
+					}else{
+						val = ((2*left + 2*leftDown + down) /AVE_FACTOR)/DIV_FACTOR;
 					}
 					htable[i][j] = val;
 				}
@@ -129,6 +149,12 @@ public class HeuristicTable {
 				rtable[i][j] = htable[i+1][j+1];
 			}
 		}
+		
+		
+		return nullifyStartPos(rtable);
+	}
+
+	protected double[][] nullifyStartPos(double[][] rtable) {
 		double startValue = 0;
 		rtable[0][5] = startValue;
 		rtable[0][6] = startValue;
@@ -141,7 +167,6 @@ public class HeuristicTable {
 		rtable[2][5] = startValue + 0.2;
 		rtable[2][6] = startValue + 0.2;
 		rtable[2][7] = startValue + 0.2;
-		
 		return rtable;
 	}
 	
@@ -160,18 +185,19 @@ public class HeuristicTable {
 	}
 	
 	public String  print2dArr(double[][] arr){
-		StringBuffer b = new StringBuffer();
+		 Formatter formatter = new Formatter( new StringBuffer());
 		if (arr != null) {
 			int lenX = arr.length;
 			int lenY = arr[0].length;
+
 			for (int i = 0; i < lenX; i++) {
 				for (int j = 0; j < lenY; j++) {
-					b.append(arr[i][j] + " ");
+					formatter.format("%4.3f ", arr[i][j]);
 				}
-				b.append("\n");
+				formatter.format("\n");
 			}
 		}
-		return b.toString();
+		return formatter.toString();
 //		System.out.println(b.toString());
 	}
 
@@ -224,6 +250,25 @@ public class HeuristicTable {
 	@Override
 	public String toString() {
 		return print2dArr(gethTable());
+	}
+	
+	public static void main(String[] args) {
+		HeuristicTable heuristicTable = new HeuristicTable();
+		System.out.println(heuristicTable.toString());
+	}
+
+	/**
+	 * @param aVEFACTOR the aVE_FACTOR to set
+	 */
+	protected void setAVE_FACTOR(double aVEFACTOR) {
+		AVE_FACTOR = aVEFACTOR;
+	}
+
+	/**
+	 * @param dIVFACTOR the dIV_FACTOR to set
+	 */
+	protected void setDIV_FACTOR(double dIVFACTOR) {
+		DIV_FACTOR = dIVFACTOR;
 	}
 
 }

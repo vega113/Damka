@@ -10,9 +10,12 @@
  *******************************************************************************/
 package mystuff.checkers.base;
 
+import mystuff.checkers.player.AlphaBetaPlayer;
 import mystuff.checkers.player.MinimaxPlayer;
 import mystuff.checkers.player.MinimaxPlayerV2;
+import mystuff.checkers.player.MinimaxPlayerV3;
 import mystuff.checkers.player.PlayerSide;
+import mystuff.checkers.player.PrincipalVariationPlayer;
 import mystuff.checkers.table.CellColor;
 
 public final class UgolkiConstants {
@@ -36,5 +39,8 @@ public final class UgolkiConstants {
 	public static final int maxSameColorIndexSize = 9;
 	public static final String BluePlayerName = "Blue";
 	public static final String RedPlayerName = "Red";
-	public static final String CurrentPlayer = MinimaxPlayerV2.class.getName();
+	public static final String CurrentPlayerRed = MinimaxPlayerV3.class.getName();
+	public static final String CurrentPlayerBlack = MinimaxPlayerV2.class.getName();
+	
+	public static final CellColor CELL_UNOCCUPIED = new CellColor(UgolkiConstants.CellColorUnoccupied);
 }

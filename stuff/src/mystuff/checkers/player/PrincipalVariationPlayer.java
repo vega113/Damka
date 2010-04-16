@@ -14,35 +14,33 @@ import java.util.Arrays;
 
 import mystuff.checkers.table.TableMove;
 
-public class PrincipalVariationPlayer extends MinimaxPlayer {
+public class PrincipalVariationPlayer extends MinimaxPlayerV2 {
 
 	public PrincipalVariationPlayer(PlayerSide side) {
 		super(side);
-		// TODO Auto-generated constructor stub
 	}
 	
 	public PrincipalVariationPlayer(PlayerSide side, int depth) {
 		super(side,depth);
 	}
 
-	protected double doMinimaxForMove(TableMove move) {
-		doMove(move);
-		double minmaxValue=PrincipalVariation(move,getSide(),m_maxDepth, -100, 100);
-		undoLastMove();
-		move.setValue(minmaxValue);
-		return minmaxValue;
-		
-	}
 	
 	protected double PrincipalVariation(TableMove tableMove, PlayerSide playerSide, int depth, double alpha, double beta){
 		double best= 0;
 		double value = 0;
-		TableMove[] validMoves = getClonedTable().getAllValidMovesForPlayerSide(playerSide);// get all children
-		if(validMoves.length == 0 || depth == 0 || getClonedTable().isWinConditionReachedForSide(playerSide)){
+		if (depth == 1 ){
 			m_depth = depth;
-			return getHeuristicValueForBoardState(playerSide);
+			doMove(tableMove);
+			alpha = getHeuristicValueForBoardState(getSide());
+			undoLastMove();
+			return alpha;
+		}
+		if(getClonedTable().isWinConditionReachedForSide(getSide())){
+			isWinConditionReached = true;
+			return getHeuristicValueForBoardState(getSide());
 		}
 		doMove(tableMove);
+		TableMove[] validMoves = getClonedTable().getAllValidMovesForPlayerSide(playerSide);// get all children
 		best = -PrincipalVariation(validMoves[0],getSide(),depth-1, -beta, -alpha);
 		for (int i = 1; i < validMoves.length; i++) {
 			if(best < beta)
@@ -50,7 +48,7 @@ public class PrincipalVariationPlayer extends MinimaxPlayer {
 			if(best > alpha) 
 				alpha = best;
 			doMove(validMoves[i]);
-			value = -PrincipalVariation(validMoves[i],playerSide.getNextPlayerSide(),depth-1, -alpha-1, -alpha);
+			value = -PrincipalVariation(validMoves[i],playerSide,depth-1, -alpha-1, -alpha);
 			if (value > alpha && value < beta) 
 	            best = -PrincipalVariation(validMoves[i],playerSide.getNextPlayerSide(),depth-1, -beta, -value);
 	        else if (value > best)
@@ -60,11 +58,10 @@ public class PrincipalVariationPlayer extends MinimaxPlayer {
 		undoLastMove();
 		return best;
 	}
-	/* (non-Javadoc)
-	 * @see mystuff.checkers.player.MinimaxPlayer#AnalyzeMoves()
-	 */
-	protected void AnalyzeMoves() {
-		super.AnalyzeMoves();
+	
+	@Override
+	protected double MaxValue(TableMove tableMove, int depth) {
+		return PrincipalVariation(tableMove,getSide(),depth, -100, 100);
 	}
 	
 

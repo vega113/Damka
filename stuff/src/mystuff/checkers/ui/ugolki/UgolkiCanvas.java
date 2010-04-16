@@ -60,11 +60,12 @@ public class UgolkiCanvas extends CheckersCanvas {
 		BaseAutomatePlayer player = null;
 		BaseAutomatePlayer player2 = null;
 		try {
-			Class playeClass = Class.forName(UgolkiConstants.CurrentPlayer);
+			Class playerClassRed = Class.forName(UgolkiConstants.CurrentPlayerRed);
+			Class playerClassBlack = Class.forName(UgolkiConstants.CurrentPlayerBlack);
 			try {
 				try {
-					player = (BaseAutomatePlayer)playeClass.getConstructors()[1] .newInstance(new Object[] {UgolkiConstants.PlayerSideBlue,3});
-					player2 = (BaseAutomatePlayer)playeClass.getConstructors()[1] .newInstance(new Object[] {UgolkiConstants.PlayerSideRed,3});
+					player = (BaseAutomatePlayer)playerClassBlack.getConstructors()[1] .newInstance(new Object[] {UgolkiConstants.PlayerSideBlue,3});
+					player2 = (BaseAutomatePlayer)playerClassRed.getConstructors()[1] .newInstance(new Object[] {UgolkiConstants.PlayerSideRed,3});
 				} catch (IllegalArgumentException e) {
 					e.printStackTrace();
 				} catch (SecurityException e) {
@@ -228,11 +229,11 @@ public class UgolkiCanvas extends CheckersCanvas {
 			 }
 		 }
 		private void subAutoPlay(BaseAutomatePlayer autoPlayer, int playerType, int nextPlayerType){
-			mainPlainCheckers.mylog("Entering subAutoPlay: " + toPlayerSideId(playerType) );
+//			mainPlainCheckers.mylog("Entering subAutoPlay: " + toPlayerSideId(playerType) );
 			autoPlayer.setCurrentTableState(getUgolkiState());
 			autoPlayer.execute();
 			 TableMove move = autoPlayer.getNextMove();
-			 mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (from) on " + move.getFrom().toString());
+//			 mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (from) on " + move.getFrom().toString());
 			 setClickerId(toPlayerSideId(getCurrentPlayer()));//FIXME clickerId should be paremeter to pressMouseInternal
 			 isTransmitClick = true;
 			 doClickSquare ( move.getFrom().getXCoord(),move.getFrom().getYCoord());
@@ -241,12 +242,12 @@ public class UgolkiCanvas extends CheckersCanvas {
 				Thread.sleep(autoSleepTime);
 			} catch (InterruptedException e) {
 			}
-			setClickerId(toPlayerSideId(getCurrentPlayer()));//FIXME clickerId should be paremeter to pressMouseInternal
+			setClickerId(toPlayerSideId(getCurrentPlayer()));//FIXME clickerId should be parameter to pressMouseInternal
 			isTransmitClick = true;
 			doClickSquare ( move.getTo().getXCoord(),move.getTo().getYCoord());
 			paint(getGraphics());
-			mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (to) on " + move.getFrom().toString() + ", hval: " + move.getValue());
-			mainPlainCheckers.mylog("Exiting subAutoPlay: " );
+//			mainPlainCheckers.mylog(autoPlayer.getSide().getPlayerSymbol() + " click (to) on " + move.getFrom().toString() + ", hval: " + move.getValue());
+//			mainPlainCheckers.mylog("Exiting subAutoPlay: " );
 		}
 		
 	}
